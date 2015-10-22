@@ -7,6 +7,7 @@ SANITIZE_WORD_LIST = [
   "password",
   "secret"
 ]
+SANITIZED_EXCEPTION_MESSAGE = "Sanitized exception. Check /var/log/chef.log for stacktrace"
 
 module Raven
   module Chef
@@ -43,7 +44,7 @@ module Raven
 
       def sanitize_exception(exception)
         if SANITIZE_WORD_LIST.any? { |word| exception.include?(word) }
-          "Sanitized exception. Check /var/log/chef.log for stacktrace"
+          SANITIZED_EXCEPTION_MESSAGE
         else
           exception
         end

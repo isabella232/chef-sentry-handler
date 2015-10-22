@@ -18,9 +18,8 @@ describe Raven::Chef::SentryHandler do
     context "exception has a keyword" do
       it "sanitizes with a keyword" do
         exception = "there's a key here"
-        expected_exception = "Sanitized exception. Check /var/log/chef.log for stacktrace"
 
-        expect(described_class.new(@node).send(:sanitize_exception, exception)).to eq(expected_exception)
+        expect(described_class.new(@node).send(:sanitize_exception, exception)).to eq(SANITIZED_EXCEPTION_MESSAGE)
       end
     end
   end

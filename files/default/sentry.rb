@@ -1,4 +1,12 @@
+require 'chef'
+require 'chef/handler'
 require 'raven'
+
+SANITIZE_WORD_LIST = [
+  "key",
+  "password",
+  "secret"
+]
 
 module Raven
   module Chef
@@ -19,6 +27,7 @@ module Raven
         return if success?
         Raven.logger.info "Logging run failure to Sentry server"
         if exception
+          expception = sanitize_exception(exception)
           evt = Raven::Event.capture_exception(exception)
         else
           evt = Raven::Event.new do |evt|
@@ -29,6 +38,16 @@ module Raven
         # Use the node name, not the FQDN
         evt.server_name = node.name
         Raven.send(evt)
+      end
+
+      private
+
+      def sanitize_exception(exception)
+        if SANITIZE_WORD_LIST.any? { |word| exception.include?(word) }
+          "Sanitized exception. Check /var/log/chef.log for stacktrace"
+        else
+          exception
+        end
       end
     end
   end

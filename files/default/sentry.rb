@@ -28,7 +28,7 @@ module Raven
         return if success?
         Raven.logger.info "Logging run failure to Sentry server"
         if exception
-          evt = Raven::Event.capture_exception(sanitize_exeption(exception))
+          evt = Raven::Event.capture_exception(sanitize_exception(exception))
         else
           evt = Raven::Event.new do |evt|
             evt.message = "Unknown error during Chef run"

@@ -44,8 +44,12 @@ module Raven
       private
 
       def sanitize_exception(exception)
-        if SANITIZE_WORD_LIST.any? { |word| exception.message.include?(word) }
-          exception.class.new(SANITIZED_EXCEPTION_MESSAGE)
+        if SANITIZE_WORD_LIST.any? { |word| exception.to_s.include?(word) }
+          if exception.is_a?(Exception)
+            exception.class.new(SANITIZED_EXCEPTION_MESSAGE)
+          else
+            SANITIZED_EXCEPTION_MESSAGE
+          end
         else
           exception
         end

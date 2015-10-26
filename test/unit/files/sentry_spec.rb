@@ -30,5 +30,13 @@ describe Raven::Chef::SentryHandler do
         expect(described_class.new(@node).send(:sanitize_exception, exception)).to eq(exception)
       end
     end
+
+    context "exception is a string and has a key" do
+      it "sanitizes the message" do
+        exception = "there's a key here"
+
+        expect(described_class.new(@node).send(:sanitize_exception, exception)).to eq(SANITIZED_EXCEPTION_MESSAGE)
+      end
+    end
   end
 end

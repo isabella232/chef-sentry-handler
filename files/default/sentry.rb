@@ -28,6 +28,7 @@ module Raven
         return if success?
         Raven.logger.info "Logging run failure to Sentry server"
         if exception
+          exception = sanitize_exception(exception)
           evt = Raven::Event.capture_exception(sanitize_exception(exception))
         else
           evt = Raven::Event.new do |evt|
@@ -43,8 +44,8 @@ module Raven
       private
 
       def sanitize_exception(exception)
-        if SANITIZE_WORD_LIST.any? { |word| exception.include?(word) }
-          SANITIZED_EXCEPTION_MESSAGE
+        if SANITIZE_WORD_LIST.any? { |word| exception.message.include?(word) }
+          exception.class.new(SANITIZED_EXCEPTION_MESSAGE)
         else
           exception
         end

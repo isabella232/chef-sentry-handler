@@ -16,18 +16,26 @@ describe Raven::Chef::SentryHandler do
 
   describe "#sanitize_exception" do
     context "exception has a keyword" do
-      it "sanitizes with a keyword" do
-        exception = "there's a key here"
+      it "sanitizes the message" do
+        exception = Exception.new("there's a key here")
 
-        expect(described_class.new(@node).send(:sanitize_exception, exception)).to eq(SANITIZED_EXCEPTION_MESSAGE)
+        expect(described_class.new(@node).send(:sanitize_exception, exception)).to eq(Exception.new(SANITIZED_EXCEPTION_MESSAGE))
       end
     end
 
     context "exception has no keyword" do
       it "returns the exception" do
-        exception = "there's no k3y here"
+        exception = Exception.new("there's no k3y here")
 
         expect(described_class.new(@node).send(:sanitize_exception, exception)).to eq(exception)
+      end
+    end
+
+    context "exception is a string and has a key" do
+      it "sanitizes the message" do
+        exception = "there's a key here"
+
+        expect(described_class.new(@node).send(:sanitize_exception, exception)).to eq(SANITIZED_EXCEPTION_MESSAGE)
       end
     end
   end

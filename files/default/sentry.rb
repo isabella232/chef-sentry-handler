@@ -28,8 +28,15 @@ module Raven
         return if success?
         Raven.logger.info "Logging run failure to Sentry server"
         if exception
-          exception = sanitize_exception(exception)
-          evt = Raven::Event.capture_exception(sanitize_exception(exception))
+          # Why can't I make this a method? It makes 'exception' nil upon passing it in
+          # def sanitize_exception(exception)
+          #   exception
+          # end
+          if SANITIZE_WORD_LIST.any? { |word| exception.to_s.include?(word) }
+            evt = Raven::Event.capture_exception(Exception.new(SANITIZED_EXCEPTION_MESSAGE))
+          else
+            evt = Raven::Event.capture_exception(exception)
+          end
         else
           evt = Raven::Event.new do |evt|
             evt.message = "Unknown error during Chef run"
@@ -39,20 +46,6 @@ module Raven
         # Use the node name, not the FQDN
         evt.server_name = node.name
         Raven.send(evt)
-      end
-
-      private
-
-      def sanitize_exception(exception)
-        if SANITIZE_WORD_LIST.any? { |word| exception.to_s.include?(word) }
-          if exception.is_a?(Exception)
-            exception.class.new(SANITIZED_EXCEPTION_MESSAGE)
-          else
-            SANITIZED_EXCEPTION_MESSAGE
-          end
-        else
-          exception
-        end
       end
     end
   end

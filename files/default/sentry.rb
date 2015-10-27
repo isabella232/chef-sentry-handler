@@ -33,9 +33,10 @@ module Raven
           #   exception
           # end
           if SANITIZE_WORD_LIST.any? { |word| exception.to_s.include?(word) }
-            exception = Exception.new(SANITIZED_EXCEPTION_MESSAGE)
+            evt = Raven::Event.capture_exception(Exception.new(SANITIZED_EXCEPTION_MESSAGE))
+          else
+            evt = Raven::Event.capture_exception(exception)
           end
-          evt = Raven::Event.capture_exception(exception)
         else
           evt = Raven::Event.new do |evt|
             evt.message = "Unknown error during Chef run"
